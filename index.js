@@ -80,12 +80,43 @@ app.post("/api/login", async (req, res) => {
     return res.status(401).send({ message: "Invalid email or password" });
   }
 
-  const { password: pwd, ...userWithoutPassword } = user;
-  
+  //สร้าง token jwt token
+  const token = jwt.sign({ email, role: "admin" }, secret, { expiresIn: "1h" });
+
   res.send({
     message: "Login successful",
-    user: userWithoutPassword,
+    token,
   });
+});
+
+app.get("/api/users", async (req, res) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    let authToken = "";
+    if (authHeader) {
+      authToken = authHeader.split(" ")[1];
+    }
+    const user = jwt.verify(authToken, secret);
+    console.log("user :", user);
+    // เราจะมั่นใจว่า user มาอย่างถูกต้องแล้ว
+    // recheck จาก database เราก็ได้
+    const [checkResults] = await conn.query(
+      "SELECT * from users where email = ?",
+      user.email
+    );
+    if (!checkResults[0]) {
+      throw { message: "user not found" };
+    }
+    const [results] = await conn.query("SELECT * FROM users");
+    // const users = results.map((row) => row.email);
+    res.json({ users: results });
+  } catch (er) {
+    console.error(er);
+    res.status(403).json({
+      message: "authenication fail",
+      er,
+    });
+  }
 });
 
 // Listen
