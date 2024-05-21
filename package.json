@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "python3 -m http.server --directory src 8888"
+  },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",

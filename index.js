@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(
   cors({
     credentials: true,
-    origin: ["http://127.0.0.1:8888"],
+    origin: ["http://localhost:8888"],
   })
 );
 app.use(cookieParser());
@@ -92,7 +92,6 @@ app.post("/api/login", async (req, res) => {
 
   req.session.userId = user.id;
   req.session.user = user;
-  console.log("req.session 1:", req.session);
 
   res.send({
     message: "Login successful",
@@ -120,7 +119,6 @@ app.get("/api/users", async (req, res) => {
     if (!checkResults[0]) {
       throw { message: "user not found" };
     } */
-    console.log("req.session 2:", req.session);
     if (!req.session.userId) {
       throw { message: "Auth fail" };
     }
