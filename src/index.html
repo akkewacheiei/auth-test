@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    Login Form
+    <div>
+        Email <input type="text" name="email">
+    </div>
+    <div>
+        Password <input type="password" name="password">
+    </div>
+    <button onclick="login()">Login</button>
+    <button onclick="getUsers()">Get Users</button>
+  
+
+    <script>
+        const login = async () => {
+            try {
+                const email = document.querySelector('input[name=email]').value
+                const password = document.querySelector('input[name=password]').value
+                console.log(email, password);
+                const response = await axios.post("http://localhost:8000/api/login", {
+                email,
+                password
+            }) 
+            console.log(response.data);
+            localStorage.setItem('token', response.data.token)
+                
+            } catch (error) {
+                console.log("error:", error);
+            }       
+        }
+
+        const getUsers = async() => {
+            try {
+                const authToken = localStorage.getItem('token');
+                const response = await axios.get("http://localhost:8000/api/users", {
+                headers: {
+                    'authorization': `Bearer ${authToken}`
+                }
+            }) 
+                console.log('users data: ', response.data );
+            } catch (error) {
+                console.log("error:", error);
+            }
+        }
+        
+    </script>
+</html>

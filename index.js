@@ -5,13 +5,14 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const bcrypt = require("bcrypt");
+const { log } = require("console");
 
 const app = express();
 app.use(express.json());
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:8888"],
+    origin: ["http://127.0.0.1:8888"],
   })
 );
 app.use(cookieParser());
@@ -82,7 +83,6 @@ app.post("/api/login", async (req, res) => {
 
   //สร้าง token jwt token
   const token = jwt.sign({ email, role: "admin" }, secret, { expiresIn: "1h" });
-
   res.send({
     message: "Login successful",
     token,
