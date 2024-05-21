@@ -83,6 +83,13 @@ app.post("/api/login", async (req, res) => {
 
   //สร้าง token jwt token
   const token = jwt.sign({ email, role: "admin" }, secret, { expiresIn: "1h" });
+  res.cookie("token", token, {
+    maxAge: 300000,
+    secure: true,
+    httpOnly: true,
+    sameSite: "none",
+  });
+
   res.send({
     message: "Login successful",
     token,
@@ -91,11 +98,15 @@ app.post("/api/login", async (req, res) => {
 
 app.get("/api/users", async (req, res) => {
   try {
-    const authHeader = req.headers["authorization"];
+    //code V.เก่า คือ แนบ token ไปใน headers
+   /*  const authHeader = req.headers["authorization"];
     let authToken = "";
     if (authHeader) {
       authToken = authHeader.split(" ")[1];
-    }
+    } */
+    //code V.ใหม่ คือ ใช้จาก cookies
+    const authToken = req.cookies.token;
+
     const user = jwt.verify(authToken, secret);
     console.log("user :", user);
     // เราจะมั่นใจว่า user มาอย่างถูกต้องแล้ว
