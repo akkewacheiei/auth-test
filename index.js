@@ -82,42 +82,50 @@ app.post("/api/login", async (req, res) => {
   }
 
   //สร้าง token jwt token
-  const token = jwt.sign({ email, role: "admin" }, secret, { expiresIn: "1h" });
+  /*   const token = jwt.sign({ email, role: "admin" }, secret, { expiresIn: "1h" });
   res.cookie("token", token, {
     maxAge: 300000,
     secure: true,
     httpOnly: true,
     sameSite: "none",
-  });
+  }); */
+
+  req.session.userId = user.id;
+  req.session.user = user;
+  console.log("req.session 1:", req.session);
 
   res.send({
     message: "Login successful",
-    token,
   });
 });
 
 app.get("/api/users", async (req, res) => {
   try {
-    //code V.เก่า คือ แนบ token ไปใน headers
-   /*  const authHeader = req.headers["authorization"];
+    //code V.1 แนบ token ไปใน headers
+    /*  const authHeader = req.headers["authorization"];
     let authToken = "";
     if (authHeader) {
       authToken = authHeader.split(" ")[1];
     } */
-    //code V.ใหม่ คือ ใช้จาก cookies
-    const authToken = req.cookies.token;
 
-    const user = jwt.verify(authToken, secret);
-    console.log("user :", user);
-    // เราจะมั่นใจว่า user มาอย่างถูกต้องแล้ว
-    // recheck จาก database เราก็ได้
-    const [checkResults] = await conn.query(
+    //code V.2 ใช้จาก cookies
+    /* const authToken = req.cookies.token; */
+
+    //const user = jwt.verify(authToken, secret); // ใช้ตอน V.1, V.2
+
+    /*     const [checkResults] = await conn.query( //ใช้ตอน V.1, V.2
       "SELECT * from users where email = ?",
       user.email
     );
     if (!checkResults[0]) {
       throw { message: "user not found" };
+    } */
+    console.log("req.session 2:", req.session);
+    if (!req.session.userId) {
+      throw { message: "Auth fail" };
     }
+    console.log(req.session);
+
     const [results] = await conn.query("SELECT * FROM users");
     // const users = results.map((row) => row.email);
     res.json({ users: results });
